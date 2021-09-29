@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -15,6 +16,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductRepository productRepository;
     @Override
     public List<Product> getAllProducts() {
+
         return productRepository.findAll();
     }
 
@@ -25,26 +27,34 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product addNewProduct(Product product) {
+
         return productRepository.save(product);
     }
 
     @Override
     public Product updateProduct(Product product) {
         if(product!=null){
-            Product existingProduct = (Product) productRepository.findByProductId(product.getProductId()).orElse(null);
-            existingProduct.setProductName(product.getProductName());
-            existingProduct.setProductCategory(product.getProductCategory());
-            existingProduct.setProductDescription(product.getProductDescription());
-            existingProduct.setUnits(product.getUnits());
-            return productRepository.save(existingProduct);
+            Optional<Product> existingProduct = productRepository.findByProductId(product.getProductId());
+            if(existingProduct.get()!=null){
+                existingProduct.get().setProductName(product.getProductName());
+                existingProduct.get().setProductCategory(product.getProductCategory());
+                existingProduct.get().setProductDescription(product.getProductDescription());
+                existingProduct.get().setUnits(product.getUnits());
+                return productRepository.save(existingProduct.get());
+            }
+            return null;
         }
         return null;
     }
 
     @Override
-    public List<Product> deleteProduct(String productId) {
-         List<Product> existingProducts = productRepository.getByProductId(productId);
-         productRepository.deleteAll(existingProducts);
-         return existingProducts;
+    public Product deleteProduct(String productId) {
+         Optional<Product> existingProducts = productRepository.findByProductId(productId);
+         if(existingProducts.get()!=null)
+         {
+             productRepository.delete(existingProducts.get());
+             return existingProducts.get();
+         }
+         return null;
     }
 }

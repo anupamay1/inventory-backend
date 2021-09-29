@@ -23,12 +23,9 @@ public class UserController {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/addUser")
-    public User addUser(@RequestBody User user){
+    public User addUser(@RequestBody User user) throws Exception {
+
         return userService.addUser(user);
-    }
-    @GetMapping("/welcome")
-    public String welcome(){
-        return "Welcome";
     }
 
     @PostMapping("/authenticate")
